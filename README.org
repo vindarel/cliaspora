@@ -1,0 +1,35 @@
+
+* Cliaspora - Lisp bindings to the Diaspora social network
+
+Diaspora doesn't have a proper API yet.
+
+We need to get  a random page, extract its csrf  token from it, login,
+handle cookies and then use json endpoints:
+
+- stream.json
+- activity.json
+- notifications.json
+- more ?
+
+
+** Use
+
+¡ in development !
+
+#+BEGIN_SRC lisp
+;; you can put those in ~/.sbclrc
+(in-package :cliaspora)
+(setf *username* "name")
+(setf *password* "pwd")
+
+(login)
+(get-stream)
+#+END_SRC
+
+** Resources
+
+https://lispcookbook.github.io/cl-cookbook/
+
+https://github.com/CodyReichert/awesome-cl
+
+https://lisp-journey.gitlab.io/blog/these-months-in-common-lisp-q1-2018/
