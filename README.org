@@ -14,13 +14,14 @@ handle cookies and then use json endpoints:
 
 ** Use
 
-¡ in development !
+¡ in development, don't look !
 
 #+BEGIN_SRC lisp
 ;; you can put those in ~/.sbclrc
 (in-package :cliaspora)
 (setf *username* "name")
 (setf *password* "pwd")
+(setf *pod* "http://...org")
 
 (login)
 (get-stream)

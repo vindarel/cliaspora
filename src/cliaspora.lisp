@@ -28,7 +28,7 @@
 
 (defun get-csrf-token (&key cookie)
   ;; key the csrf token before login.
-  (let* ((resp (dex:get (str:concat pod "/stream")
+  (let* ((resp (dex:get (str:concat *pod* "/stream")
                         :cookie-jar cookie))
          (scan (multiple-value-bind (all token)
                     (cl-ppcre:scan-to-strings "csrf-token.*content.*\"\(.*\)\"" resp)
@@ -41,7 +41,7 @@
 
 (defun login (&key (username *username*) (password *password*) (pod *pod*))
   ;; exple: https://github.com/fukamachi/dexador/issues/4
-  (unless pod
+  (when (str:blank? pod)
     (error "The pod url is not defined."))
   (assert username)
   (assert password)
@@ -74,7 +74,7 @@
 (defun get-stream ()
   (setf *json-stream*
         (decode-json-from-string
-         (dex:get (str:concat pod "/stream.json")
+         (dex:get (str:concat *pod* "/stream.json")
                   :cookie-jar *session-cookie*
                   :verbose t))))
 
