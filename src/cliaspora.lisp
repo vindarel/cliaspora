@@ -78,6 +78,12 @@
                   :cookie-jar *session-cookie*
                   :verbose t))))
 
+(defun show-stream (&key (length 10))
+  (mapcar (lambda (post)
+            (format t "~a~%" (text post))
+            (format t "~&----------~%"))
+          (str:substring 0 length *json-stream*)))
+
 
 (defun text (post)
   (assoc-value :text post))
