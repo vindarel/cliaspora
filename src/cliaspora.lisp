@@ -71,12 +71,82 @@
 (defparameter *json-stream* nil
   "json stream")
 
+(defclass author ()
+  ((id
+    :initarg :id
+    :accessor author-id)
+   (guid
+    :initarg :guid
+    :accessor author-guid))
+  (name
+   :initarg :name
+   :accessor author-name)
+  (diaspora-id
+   :initarg :diaspora-id
+   :accessor author-diaspora-id)
+  (avatar
+   ;; a plist with :small, :medium and :large sizes
+   :initarg :avatar
+   :accessor author-avatar))
+
+(defclass post ()
+  ((id
+    :initarg :id
+    :accessor post-id)
+   (guid
+    :initarg :guid
+    :accessor post-guid)
+   (created-at
+    :initarg :created-at
+    :accessor post-created-at)
+   (public
+    :initarg :public
+    :accessor public)
+   (title
+    :initarg :title
+    :accessor title)
+   (author
+    :initarg :author
+    :accessor author)
+   (text
+    ;; accessor: generic.
+    :initarg :text)
+   (likes
+    :initarg :likes
+    :accessor likes)
+   ;; reshares
+   (post-type
+    :initarg :post-type
+    :accessor post-type)
+   (nsfw
+    :initarg :nsfw
+    :accessor nsfw)
+   ;; photos
+   ;; root
+   ;; poll
+   ))
+
+
+(defmethod print-object ((obj post) stream)
+  (print-unreadable-object (obj stream :type t)
+    ;; fragile ?
+    (format stream "id ~a '~a'" (post-id obj) (str:substring 0 15 (title obj)))))
+
 (defun get-stream ()
-  (setf *json-stream*
-        (decode-json-from-string
-         (dex:get (str:concat *pod* "/stream.json")
-                  :cookie-jar *session-cookie*
-                  :verbose t))))
+  (let ((content
+         (decode-json-from-string
+          (dex:get (str:concat *pod* "/stream.json")
+                   :cookie-jar *session-cookie*
+                   :verbose t))))
+    (setf *json-stream*
+          (loop for it in content
+             :collect
+               (make-instance 'post
+                              :id (assoc-value :id it)
+                              :guid (assoc-value :guid it)
+                              :created-at (assoc-value :created-at it)
+                              :title (assoc-value :title it)
+                              :text (assoc-value :text it))))))
 
 (defun show-stream (&key (length 10))
   (mapcar (lambda (post)
@@ -84,6 +154,19 @@
             (format t "~&----------~%"))
           (str:substring 0 length *json-stream*)))
 
+(defun stream-titles (&key (length 10))
+  (mapcar (lambda (post)
+            (format t "~a~&" (title post)))
+          (str:substring 0 length *json-stream*)))
 
-(defun text (post)
+(defgeneric text (obj)
+  (:documentation "Get the text of this post."))
+
+(defmethod text ((post t))
   (assoc-value :text post))
+
+(defmethod text ((post post))
+  (slot-value post 'text))
+
+(defmethod (setf text) (val (post post))
+  (setf (slot-value post 'text) val))
